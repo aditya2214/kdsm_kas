@@ -35,7 +35,7 @@ class HomeController extends Controller
         return Datatables::of($wargas)
         ->editColumn('aksi', function ($wargas) {
             if(Auth::user()->role == 2 ){
-                return "<button type='button' class='btn btn-warning btn-sm' data-toggle='modal' data-target='#exampleModal2' onClick='reply_click(".$wargas->id.")'>Edit</button><br> <a class='btn btn-danger btn-sm' href='hapus-data-warga/".$wargas->id."'><i class='fas fa-trash-alt'></i></a>";
+                return "<button type='button' class='btn btn-warning btn-sm' data-toggle='modal' data-target='#exampleModal2' onClick='reply_click(".$wargas->id.")'>Edit</button><br> <a class='btn btn-danger btn-sm' onclick=\"return confirm('Anda Yakin Mau Menghapus Data Ini?');\" href='hapus-data-warga/".$wargas->id."'><i class='fas fa-trash-alt'></i></a>";
             }
         })
         ->escapeColumns([])
@@ -57,6 +57,14 @@ class HomeController extends Controller
             'data' => $war
         ];
 
+    }
+
+    public function update_data(Request $request){
+        $update = \App\Warga::where('id',$request->eid)->update($request->except('_token','eid'));
+
+        Alert::success(' Success ', ' Berhasil Update');
+    
+        return redirect()->back();
     }
 
 
@@ -82,25 +90,39 @@ class HomeController extends Controller
     {
         try {
             //code...
-            $warga = new \App\Warga;
-            $warga->nama = $request->nama ;
-            $warga->usia = $request->usia ;
-            $warga->tanggal_lahir = $request->tanggal_lahir ;
-            $warga->rt = $request->rt ;
-            $warga->rw = $request->rw ;
-            $warga->pekerjaan = $request->pekerjaan ;
-            $warga->nomor_hp = $request->nomor_hp ;
-            $warga->id_status = $request->id_status ;
-            $warga->id_user = Auth::user()->id;
-            $warga->save();
+            $this->validate($request,[
+                'nama' => 'required|max:100',
+                'usia' => 'required|max:3',
+                'rt' => 'required|max:4',
+                'rw' => 'required|max:4',
+                'pekerjaan' => 'required|max:50',
+                'nomor_hp' => 'required|max:14',
+                'id_status' => 'required|max:50',
     
-            Alert::success(' Success ', ' Berhasil Simpan');
-            return redirect()->back();
+             ]);
+    
+                $warga = new \App\Warga;
+                $warga->nama = $request->nama ;
+                $warga->usia = $request->usia ;
+                $warga->tanggal_lahir = $request->tanggal_lahir ;
+                $warga->rt = $request->rt ;
+                $warga->rw = $request->rw ;
+                $warga->pekerjaan = $request->pekerjaan ;
+                $warga->nomor_hp = $request->nomor_hp ;
+                $warga->id_status = $request->id_status ;
+                $warga->id_user = Auth::user()->id;
+                $warga->save();
+    
+                Alert::success(' Success ', ' Berhasil Simpan');
+    
+                return redirect()->back();
         } catch (\Throwable $th) {
             //throw $th;
-            Alert::error(' Upps!!! ', ' Ada Masalah');
+            Alert::error(' Upsss! ', ' Ada Masalah  ');
             return redirect()->back();
+
         }
+        
        
     }
 

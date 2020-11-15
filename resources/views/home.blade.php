@@ -1,6 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
+@if (count($errors) > 0)
+<div class="alert alert-danger">
+    <ul>
+        @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
 <div class="container">
     <div class="row">
         <div class="col-md-8">
@@ -57,44 +66,44 @@
         <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel">Tambahkan Profil</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button type="button" id="close_btn" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
             </button>
         </div>
         <div class="modal-body">
-            <form action="{{ url ('simpan_data_warga') }}" method="post">
+            <form method="post" action="{{ url('/simpan_data_warga') }}">
             @csrf
                 <div class="form-group">
                     <label for="">Nama Lengkap</label>
-                    <input required class="form-control" type="text" name="nama" id="nama" placeholder="{{Auth::user()->name}}">
+                    <input required class="form-control" value="{{ old('nama') }}" type="text" name="nama" id="nama" placeholder="...">
                 </div>
                 <div class="form-group">
                     <label for="">Usia</label>
-                    <input required class="form-control" type="number" name="usia" id="usia" placeholder="...">
+                    <input required class="form-control" value="{{ old('usia') }}" type="number" name="usia" id="usia" placeholder="...">
                 </div>
                 <div class="form-group">
                     <label for="">Tanggal Lahir</label>
-                    <input required class="form-control" type="date" name="tanggal_lahir" id="tanggal_lahir" placeholder="...">
+                    <input required class="form-control" value="{{ old('tanggal_lahir') }}" type="date" name="tanggal_lahir" id="tanggal_lahir" placeholder="...">
                 </div>
                 <div class="form-group">
                     <label for="">RT</label>
-                    <input required class="form-control" type="text" name="rt" id="rt" placeholder="...">
+                    <input required class="form-control" value="{{ old('rt') }}" type="number" name="rt" id="rt" placeholder="...">
                 </div>
                 <div class="form-group">
                     <label for="">RW</label>
-                    <input required class="form-control" type="text" name="rw" id="rw" placeholder="...">
+                    <input required class="form-control" value="{{ old('rw') }}" type="number" name="rw" id="rw" placeholder="...">
                 </div>
                 <div class="form-group">
                     <label for="">Pekerjaan</label>
-                    <input required class="form-control" type="text" name="pekerjaan" id="pekerjaan" placeholder="...">
+                    <input required class="form-control" value="{{ old('pekerjaan') }}" type="text" name="pekerjaan" id="pekerjaan" placeholder="...">
                 </div>
                 <div class="form-group">
                     <label for="">Nomor Hp</label>
-                    <input required class="form-control" type="text" name="nomor_hp" id="nomor_hp" placeholder="...">
+                    <input required class="form-control" value="{{ old('nomor_hp ') }}" type="number" name="nomor_hp" id="nomor_hp" placeholder="...">
                 </div>
                 <div class="form-group">
                     <label for="">Status</label>
-                    <input required class="form-control" type="text" name="id_status" id="id_status" placeholder="...">
+                    <input required class="form-control" value="{{ old('id_status') }}" type="text" name="id_status" id="id_status" placeholder="...">
                 </div>
         </div>
         <div class="modal-footer">
@@ -111,13 +120,20 @@
     <div class="modal-dialog">
         <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <h5 class="modal-title" id="exampleModalLabel">Edit Data</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
             </button>
         </div>
         <div class="modal-body">
         <div class="form-group">
+
+            <form action="{{ url ('update_data/') }}" method="post">
+            @csrf
+                <div>
+                    <input  class="form-control" type="hidden" name="eid" id="eid">
+                </div>
+                <div>
                     <label for="">Nama Lengkap</label>
                     <input required class="form-control" type="text" name="nama" id="enama">
                 </div>
@@ -151,9 +167,10 @@
                 </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
+            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary btn-sm">Save changes</button>
         </div>
+            </form>
         </div>
     </div>
     </div>
@@ -162,7 +179,8 @@
 @section('script')
 <script>
 $(function() {
-    $('#warga-table').DataTable({
+    var table = $('#warga-table').DataTable({
+        
         processing: true,
         serverSide: true,
         ajax: "{{url ('/json') }}",
@@ -193,10 +211,14 @@ $(function() {
                 {a,b,c}
             )
 
+            let id = a.data.id;
+            $('#eid').val(id);
             let nama = a.data.nama;
             $('#enama').val(nama);
             let usia = a.data.usia;
             $('#eusia').val(usia);
+            let tanggal_lahir = a.data.tanggal_lahir;
+            $('#etanggal_lahir').val(tanggal_lahir);
             let rt = a.data.rt;
             $('#ert').val(rt);
             let rw = a.data.rw;
@@ -217,4 +239,34 @@ $(function() {
 
   }
 </script>
+<!-- <script>
+    $(document).ready(function(){
+
+        $('#data_warga').on('submit',function(e){
+            e.preventDefault();
+
+            $.ajax({
+                type : "POST",
+                url : "../public/simpan_data_warga",
+                data :$('#data_warga').serialize(),
+                success : function(response){
+
+                    console.log(response)
+
+                   
+                    $("#close_btn").trigger("click");
+                    
+                    alert("Data Berhasil Disimpan");
+                    // location.reload();
+                    // setInterval( function () {
+                    //     this.table.ajax.reload();
+                    // }, 2000 );
+                },
+                error : function(error){
+                    console.log(error);
+                }
+            });
+        });
+    });
+</script> -->
 @endsection

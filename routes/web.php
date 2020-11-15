@@ -35,5 +35,6 @@ Route::get('/saksi_pengeluaran/{id}', 'HomeController@saksi_pengeluaran');
 Route::get('/pengesah/{id}', 'HomeController@pengesah');
 Route::get('/hapus-data-warga/{id}', 'HomeController@hapus_data_warga');
 Route::get('/get/{id}', 'HomeController@get');
+Route::post('/update_data', 'HomeController@update_data');
 
 
